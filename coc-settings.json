@@ -1,0 +1,172 @@
+{
+    /* ================= UI ================= */
+    "hover.floatConfig": { "border": true, "rounded": true, "focusable": true },
+    "suggest.floatConfig": { "border": true, "rounded": true },
+    "diagnostic.floatConfig": { "border": true, "rounded": true },
+    "signature.floatConfig": { "border": true, "rounded": true },
+    "list.floatPreview": true,
+    "list.autoPreview": true,
+    "outline.autoPreview": true,
+    "git.floatConfig": { "border": true, "rounded": true },
+
+    /* ================= 诊断 & 图标 ================= */
+    "diagnostic.signOffset": 1,
+    "diagnostic.errorSign": "┃",
+    "diagnostic.warningSign": "┃",
+    "diagnostic.infoSign": "┃",
+    "diagnostic.hintSign": "┃",
+    "diagnostic.enable": true,
+    "diagnostic.checkCurrentLine": true,
+    "diagnostic.messageTarget": "float",
+    /* ================= 列表 & 补全 ================= */
+    "list.alignColumns": true,
+    "inlayHint.enable": false,
+    "suggest.autoTrigger": "always",
+    "hover.enable": true,
+
+    /* ================= Snippets ================= */
+    "snippets.userSnippetsDirectory": "~/.vim/plugged/snippets",
+    "snippets.ultisnips.directories": ["~/.vim/plugged/snippets/ultisnips"],
+    "snippets.extends.javascript": ["typescript"],
+    "snippets.ultisnips.pythonPrompt": false,
+    "snippets.ultisnips": {
+        "cpp": {
+            "inc": {
+                "prefix": "#include",
+                "body": "#include <\\$1>\n\\$0",
+                "description": "Insert #include and move cursor to next line"
+            }
+        },
+        "c": {
+            "inc": {
+                "prefix": "#include",
+                "body": "#include <\\$1>\n\\$0",
+                "description": "Insert #include and move cursor to next line"
+            }
+        }
+    },
+
+    /* ================= 语言服务器 ================= */
+    "clangd.path": "/usr/bin/clangd",
+    "clangd.enabled": true,
+    "clangd.checkUpdates": false,
+    "clangd.compilationDatabasePath": "",
+    "clangd.extraArgs": ["--header-file-extensions=cpp,h"],
+    "clangd.extraArgs": ["--header-insertion=always"],
+    "coc.preferences.snippetSupport": true,
+    "clangd.semanticHighlighting": true,
+    "clangd.completeUnimported": true,
+    "clangd.diagnostics": true,
+
+    "java.configuration.runtimes": [{ "name": "JavaSE-17", "path": "/usr/lib/jvm/java-17-openjdk-amd64", "default": true }],
+    "java.clean.workspace": true,
+
+    /* ===== Android Java/Kotlin ===== */
+    "java.jdt.ls.androidSupport.enabled": "on",
+
+    /* ===== Android NDK C/C++ ===== */
+    "clangd.arguments": ["--header-insertion=never", "--compile-commands-dir=build"],
+    "cmake.configureOnOpen": true,
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+
+    "tsserver.enable": true,
+    "tsserver.enableJavascript": true,
+    "tsserver.trace.server": "messages",
+
+    "volar.takeOverMode.enabled": true,
+    "volar.autoCreateQuotes": true,
+
+    "pyright.inlayHints.enable": true,
+
+    "go.goplsOptions": {
+        "completeUnimported": true,
+        "staticcheck": true
+    },
+
+    /* ================= 其他工具 ================= */
+    "prettier": {
+        "tabWidth": 4,
+        "printWidth": 160,
+        "singleQuote": true,
+        "disableSuccessMessage": true,
+        "formatterPriority": 999
+    },
+
+    "tabnine.priority": 80,
+    "translator.toLang": "auto",
+    "translator.engines": ["youdao"],
+    // 是否弹出浮动窗口
+    "translator.popup": true,
+    "translator.proxy": "",
+    "pairs.enableCharacters": ["(", "[", "{", "'", "\"", "`"],
+    "pairs.enableBackspace": true,
+
+    "notification.disabledProgressSources": ["*"],
+    /*保存时顺便格式化*/
+    "coc.preferences.formatOnSaveFiletypes": ["*"],
+    "coc.source.autoPairs.enable": true,
+    "html.format.enable": true,
+    "html.completion.attributeDefaultValue": "doublequotes",
+    /* ================= Git ================= */
+    "git.enableGutters": true,
+    "git.addedSign.hlGroup": "GitGutterAdd",
+    "git.changedSign.hlGroup": "GitGutterChange",
+    "git.removedSign.hlGroup": "GitGutterDelete",
+    "git.addedSign.text": "┃",
+    "git.changedSign.text": "┃",
+    "git.removedSign.text": "▁",
+    "git.topRemovedSign.text": "▔",
+    "git.changeRemovedSign.text": "≃",
+    "git.branchCharacter": "",
+    "git.showCommitInFloating": true,
+    "git.addGBlameToVirtualText": false,
+    "git.addGBlameToBufferVar": true,
+    "git.splitWindowCommand": "below 10sp",
+
+    /* ================= 校验 & 其他 ================= */
+    "css.validate": true,
+    "Lua.telemetry.enable": true,
+    "@nomicfoundation/coc-solidity.telemetry": true,
+
+    "diagnostic-languageserver.enable": {
+        "type": "boolean",
+        "default": true,
+        "description": "enable this extension?"
+    },
+    "diagnostic-languageserver.mergeConfig": {
+        "type": "boolean",
+        "default": false,
+        "description": "merge config?"
+    },
+    "diagnostic-languageserver.debug": {
+        "type": "boolean",
+        "default": true,
+        "description": "enable debug?"
+    },
+    "diagnostic-languageserver.trace.server": {
+        "type": "string",
+        "default": "off",
+        "enum": ["off", "messages", "verbose"],
+        "description": "Trace level of diagnostic-languageserver"
+    },
+    "diagnostic-languageserver.linters": {
+        "type": "object",
+        "default": {},
+        "description": "linters config same as diagnostic-languageserver's linters config"
+    },
+    "diagnostic-languageserver.filetypes": {
+        "type": "object",
+        "default": {},
+        "description": "filetypes config same as diagnostic-languageserver's filetypes config"
+    },
+    "diagnostic-languageserver.formatters": {
+        "type": "object",
+        "default": {},
+        "description": "formatters config same as diagnostic-languageserver's formatters config"
+    },
+    "diagnostic-languageserver.formatFiletypes": {
+        "type": "object",
+        "default": {},
+        "description": "formatFiletypes config same as diagnostic-languageserver's formatFiletypes config"
+    }
+}
