@@ -1,0 +1,144 @@
+// src/com/campus/ui/StudentMainFrame.java
+package com.campus.ui;
+import com.campus.dao.ActivityDao;
+import com.campus.dao.ApplyDao;
+import com.campus.entity.Activity;
+import com.campus.entity.User;
+import com.campus.service.ApplyService;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Clipboard;
+import java.awt.Toolkit;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+
+public class StudentMainFrame extends JFrame {
+    private final User user;
+    private final JTable table = new JTable();
+    private final ActivityDao actDao = new ActivityDao();
+    private final ApplyService applySvc = new ApplyService();
+
+    public StudentMainFrame(User user) {
+        super("学生端");
+        this.user = user;
+        setSize(800, 600);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        JButton btnRefresh = new JButton("刷新活动");
+        JButton btnApply   = new JButton("报名");
+        JButton btnCancel  = new JButton("取消报名");
+        JButton btnScore = new JButton("评价");
+        JPanel north = new JPanel();
+        north.add(btnRefresh);
+        north.add(btnApply);
+        north.add(btnCancel);
+        north.add(btnScore);
+        add(north, BorderLayout.NORTH);
+        add(new JScrollPane(table), BorderLayout.CENTER);
+
+        btnRefresh.addActionListener(e -> loadData());
+
+        btnApply.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row == -1) { JOptionPane.showMessageDialog(this, "请先选择活动"); return; }
+            int actId = (int) table.getValueAt(row, 0);
+            String res = applySvc.addApply(user.getId(), actId);
+            if ("ok".equals(res)) {
+                // 生成电子票
+                new PdfTicket().generate(user.getId(), actId, user.getAccount());
+                // 组装提示信息
+                String message = "报名成功！\n" +
+                    "电子票已生成：ticket/act" + actId + "_" + user.getAccount() + ".pdf\n" +
+                    "二维码内容：STU:" + user.getId() + ",ACT:" + actId + "\n" +
+                    "可复制此内容给管理员完成签到";
+                // 显示【可复制内容】的自定义弹窗
+                new SuccessDialog(this, message).setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, res);
+            }
+        });
+
+        btnCancel.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row == -1) { JOptionPane.showMessageDialog(this, "请先选择活动"); return; }
+            int actId = (int) table.getValueAt(row, 0);
+            String status = (String) table.getValueAt(row, 5);
+            if ("已结束".equals(status)) { JOptionPane.showMessageDialog(this, "活动已结束，无法取消"); return; }
+            try {
+                new ApplyDao().delete(user.getId(), actId);
+                JOptionPane.showMessageDialog(this, "已取消报名");
+                loadData();
+            } catch (SQLException ex) { ex.printStackTrace(); }
+        });
+
+        btnScore.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row == -1) { JOptionPane.showMessageDialog(this, "请先选择活动"); return; }
+            int actId = (int) table.getValueAt(row, 0);
+            new ScoreDialog(this, user.getId(), actId).setVisible(true);
+        });
+
+        loadData();
+    }
+
+    // ========== 自定义【可复制内容】的报名成功弹窗 ==========
+    private class SuccessDialog extends JDialog {
+        public SuccessDialog(Frame parent, String message) {
+            super(parent, "报名成功", true);
+            setSize(400, 200);
+            setLocationRelativeTo(parent);
+            setResizable(false);
+
+            // 1. 用JTextArea实现内容可选中/复制
+            JTextArea infoArea = new JTextArea(message);
+            infoArea.setFont(new Font("SimHei", Font.PLAIN, 14));
+            infoArea.setEditable(false); // 只读（防止修改）
+            infoArea.setLineWrap(true); // 自动换行
+            infoArea.setWrapStyleWord(true); // 按单词换行
+            infoArea.selectAll(); // 默认选中所有内容，方便直接复制
+
+            // 2. 添加滚动条（应对内容较长的情况）
+            JScrollPane scrollPane = new JScrollPane(infoArea);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            // 3. 确定按钮
+            JButton okBtn = new JButton("确定");
+            okBtn.setFont(new Font("SimHei", Font.PLAIN, 14));
+            okBtn.addActionListener(e -> dispose()); // 关闭弹窗
+
+            // 4. 布局组装
+            setLayout(new BorderLayout(10, 10));
+            add(scrollPane, BorderLayout.CENTER);
+            JPanel btnPanel = new JPanel();
+            btnPanel.add(okBtn);
+            add(btnPanel, BorderLayout.SOUTH);
+        }
+    }
+
+
+private void loadData() {
+    try {
+        // 改用带统计的查询，会自动计算实时状态
+        List<Map<String, Object>> list = actDao.listWithStats();
+        String[] col = {"ID", "名称", "地点", "开始时间", "结束时间", "状态", "上限"};
+        Object[][] data = new Object[list.size()][7];
+        for (int i = 0; i < list.size(); i++) {
+            Map<String, Object> a = list.get(i);
+            data[i][0] = a.get("id");
+            data[i][1] = a.get("name");
+            data[i][2] = a.get("location");
+            data[i][3] = a.get("startTime").toString();
+            data[i][4] = a.get("endTime").toString();
+            data[i][5] = a.get("status");  // 现在是实时计算的
+            data[i][6] = a.get("maxNum");
+        }
+        table.setModel(new javax.swing.table.DefaultTableModel(data, col));
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+}
+}

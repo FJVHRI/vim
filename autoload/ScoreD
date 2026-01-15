@@ -1,0 +1,75 @@
+// src/com/campus/ui/ScoreDialog.java
+package com.campus.ui;
+
+import com.campus.dao.ApplyDao;
+import javax.swing.*;
+import java.awt.*;
+import java.sql.SQLException;
+
+public class ScoreDialog extends JDialog {
+    private JTextArea commentArea;
+    private JSlider scoreSlider;
+
+    public ScoreDialog(Frame parent, int stuId, int actId) {
+        super(parent, "活动评价", true);
+        setSize(350, 250);
+        setLocationRelativeTo(parent);
+        setResizable(false);
+
+        // 评分滑块
+        JLabel scoreLabel = new JLabel("活动评分（1-5分）：");
+        scoreSlider = new JSlider(1, 5, 3);
+        scoreSlider.setMajorTickSpacing(1);
+        scoreSlider.setPaintTicks(true);
+        scoreSlider.setPaintLabels(true);
+
+        // 评论输入框
+        JLabel commentLabel = new JLabel("评论内容：");
+        commentArea = new JTextArea(3, 20);
+        commentArea.setLineWrap(true);
+        JScrollPane commentScroll = new JScrollPane(commentArea);
+
+        // 按钮组
+        JButton submitBtn = new JButton("提交评价");
+        submitBtn.addActionListener(e -> {
+            int score = scoreSlider.getValue();
+            String comment = commentArea.getText().trim();
+            
+            if (comment.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "评论内容不能为空！");
+                return;
+            }
+
+            try {
+                // 关键：实际保存到数据库
+                new ApplyDao().saveScore(stuId, actId, score, comment);
+                JOptionPane.showMessageDialog(this, "评价提交成功！");
+                dispose(); // 关闭对话框
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "提交失败：" + ex.getMessage());
+                ex.printStackTrace();
+            }
+        });
+        
+        JButton cancelBtn = new JButton("取消");
+        cancelBtn.addActionListener(e -> dispose());
+        
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(submitBtn);
+        btnPanel.add(cancelBtn);
+
+        // 组装布局
+        JPanel inputPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+        inputPanel.add(scoreLabel);
+        inputPanel.add(scoreSlider);
+        inputPanel.add(commentLabel);
+        
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        contentPanel.add(inputPanel, BorderLayout.NORTH);
+        contentPanel.add(commentScroll, BorderLayout.CENTER);
+        contentPanel.add(btnPanel, BorderLayout.SOUTH);
+        
+        add(contentPanel);
+    }
+}
